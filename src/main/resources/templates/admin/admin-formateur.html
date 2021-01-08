@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="ISO-8859-1">
+    <title>Formateur</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+
+            <ul class="nav navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="/admin/sessions/list">Sessions</a></li>
+                <li class="nav-item active"><a class="nav-link " href="/admin/formateurs/list">Formateurs</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin/etudiants/list">Etudiants</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin/responsables/list">Responsables</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+<span class="navbar-text" sec:authentication="principal.authorities">
+  </span>
+                <li class="nav-item"><a class="nav-link" sec:authorize="isAuthenticated()" href="/logout"><span
+                        class="glyphicon glyphicon-log-in"></span>Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+</head>
+<body>
+<div class="container">
+    <p class="my-5">
+        <a href="/admin/formateurs/signup" class="btn btn-success"><i
+                class="fas fa-user-plus ml-2"> Ajouter formateur</i></a>
+    </p>
+    <div class="col-md-10">
+        <h2 th:if="${formateurs.isEmpty() or formateurs == null}">Pas encore des formateurs !</h2>
+        <div th:if="${!formateurs.isEmpty() and formateurs != null}">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Prenom</th>
+                    <th>Specialite</th>
+                    <th>Email</th>
+                    <th>Modifier</th>
+                    <th>Supprimer</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="formateur : ${formateurs}">
+
+                    <td th:text="${formateur.user.firstName}"></td>
+
+
+                    <td th:text="${formateur.user.lastName}"></td>
+
+                    <td th:text="${formateur.specialite}"></td>
+                    <td th:text="${formateur.user.email}"></td>
+
+                    <td>
+                        <a th:href="@{/admin/formateurs/edit/{id}(id=${formateur.id})}" class="btn btn-warning btn-sm" role="button">Modifier</a></td>
+                    <td>
+                        <a th:href="@{/admin/formateurs/delete/{id}(id=${formateur.id})}" class="btn btn-danger btn-sm" role="button">Supprimer</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>

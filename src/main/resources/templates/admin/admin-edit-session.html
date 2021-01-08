@@ -1,0 +1,87 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Modifier session</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script
+            src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+          crossorigin="anonymous">
+    <link rel="stylesheet"
+          href="https://use.fontawesome.com/releases/v5.4.1/css/all.css"
+          integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz"
+          crossorigin="anonymous">
+</head>
+<body>
+<div class="container my-5">
+    <h3>Modifier session</h3>
+    <div class="card">
+        <div class="card-body">
+            <div class="col-md-10">
+                <form th:action="@{/admin/sessions/add}" method="post" th:object="${session}">
+                    <div class="form-group" hidden>
+                        <input id="id" class="form-control" th:field="*{id}"
+                               required autofocus="autofocus" />
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="titre"> Titre </label>
+                        <input id="titre" class="form-control" th:field="*{titre}"
+                               required autofocus="autofocus" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="formateur">Choisir un formateur</label>
+                        <select class="form-control selectpicker" th:field="*{formateur}" id="formateur">
+                            <option value="">Rien selectionner</option>
+                            <option th:each="formateur : ${formateurs}"
+                                    th:value="${formateur.id}"
+                                    th:text="${formateur.user.firstName +' '+formateur.user.lastName +' specialite :'+formateur.specialite}">
+                            </option>
+
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="dateDebut"> Date de debut </label> <input
+                            type="date" id="dateDebut" class="form-control" th:field="*{dateDebut}"
+                            required autofocus="autofocus" />
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="nbHeurs"> Nombre des heures </label> <input
+                            type="number" id="nbHeurs" class="form-control" th:field="*{nbHeures}"
+                            required autofocus="autofocus" />
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select class="form-control selectpicker" th:field="*{status}" id="status">
+                            <option value="">Rien selectionner</option>
+                            <option th:each="ss : ${T(com.exemple.gestionformations.Status).values()}"
+                                    th:value="${ss}"
+                                    th:text="${ss}">
+                            </option>
+
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="description"> Description </label> <input
+                            id="description" class="form-control" th:field="*{description}" required
+                            autofocus="autofocus" />
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success">Ajouter</button>
+                        <span>Annuler? <a href="/" th:href="@{/admin/sessions/list}">Annuler</a></span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Modifier responsable</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script
+            src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+          crossorigin="anonymous">
+    <link rel="stylesheet"
+          href="https://use.fontawesome.com/releases/v5.4.1/css/all.css"
+          integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz"
+          crossorigin="anonymous">
+</head>
+<body>
+<div class="container my-5">
+    <h3>Modifier responsable</h3>
+    <div class="card">
+        <div class="card-body">
+            <div class="col-md-10">
+                <form th:action="@{/admin/responsable/add}" method="post" th:object="${responsable}">
+                    <div class="form-group" hidden>
+                        <input id="id" class="form-control" th:field="*{id}"
+                               required autofocus="autofocus" />
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="firstName"> Nom </label>
+                        <input id="firstName" class="form-control" th:field="*{user.firstName}"
+                               required autofocus="autofocus" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label" for="lastName"> Prenom </label> <input
+                            id="lastName" class="form-control" th:field="*{user.lastName}"
+                            required autofocus="autofocus" />
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="lastName"> Numero telephone </label> <input
+                            id="specialite" class="form-control" th:field="*{numTlf}"
+                            required autofocus="autofocus" />
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="email"> Email </label> <input
+                            id="email" class="form-control" th:field="*{user.email}" required
+                            autofocus="autofocus" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label" for="password"> Mot de passe </label> <input
+                            id="password" class="form-control" type="password"
+                            th:field="*{user.password}" required autofocus="autofocus" />
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success">Modifier</button>
+                        <span> <a href="/" th:href="@{/admin/responsables/list}">Annuler</a></span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
