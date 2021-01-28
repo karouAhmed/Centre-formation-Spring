@@ -1,5 +1,6 @@
 package com.exemple.gestionformations.controllers;
 
+import com.exemple.gestionformations.Status;
 import com.exemple.gestionformations.entities.*;
 import com.exemple.gestionformations.repository.*;
 import lombok.AllArgsConstructor;
@@ -46,13 +47,13 @@ public class ResponsableController {
             return "/responsable/responsable-ajout-session";
         }
 
-        session.setStatus("Programmé");
-       /* User user = formateur.getUser();
-        Role role = roleRepository.findByName("FORMATEUR");
-        user.setRoles(Arrays.asList(role));
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        formateur.setUser(user);
-        formateurRepository.save(formateur);*/
+        if (session.getStatus().isEmpty()){
+            session.setStatus(Status.Programmé.toString());
+
+        }
+        Session sessionTmp = sessionRepository.findById(session.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid class	 Id:" + session.getId()));
+        session.setEtudiants(sessionTmp.getEtudiants());
         sessionRepository.save(session);
         return "redirect:/responsable/sessions/list";
     }

@@ -49,7 +49,11 @@ if (session.getStatus().isEmpty()){
             session.setStatus(Status.Programmé.toString());
 
         }
-        sessionRepository.save(session);
+
+      //  Session sessionTmp = sessionRepository.findById(session.getId())
+        //        .orElseThrow(() -> new IllegalArgumentException("Invalid class	 Id:" + session.getId()));
+//session.setEtudiants(sessionTmp.getEtudiants());
+sessionRepository.save(session);
         return "redirect:/admin/sessions/list";
     }
     @GetMapping(value = {"/session/etudiantList/{id}"})
@@ -66,6 +70,8 @@ if (session.getStatus().isEmpty()){
                 .orElseThrow(() -> new IllegalArgumentException("Invalid subject Id:" + id));
         model.addAttribute("formateurs", formateurRepository.findAll());
         model.addAttribute("session", session);
+
+
         return "/admin/admin-edit-session";
     }
     @GetMapping("/session/delete/{id}")
