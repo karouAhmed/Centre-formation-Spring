@@ -3,8 +3,8 @@ package com.exemple.gestionformations.controllers;
 import com.exemple.gestionformations.Status;
 import com.exemple.gestionformations.entities.Formateur;
 import com.exemple.gestionformations.entities.Session;
-import com.exemple.gestionformations.repository.FormateurRepository;
-import com.exemple.gestionformations.repository.SessionRepository;
+import com.exemple.gestionformations.services.FormateurService;
+import com.exemple.gestionformations.services.SessionService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,47 +23,51 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/formateur")
 public class FormateurController {
-    SessionRepository sessionRepository;
-FormateurRepository formateurRepository;
+    SessionService sessionService;
+    FormateurService formateurService;
+
     @GetMapping(value = {"", "session/list"})
     public String getSessions(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        Optional<Formateur> formateur = formateurRepository.findByUserEmail(email);
-        if (formateur.isPresent()){
-            model.addAttribute("sessions", sessionRepository.findAllByFormateurId(formateur.get().getId()));
+        Optional<Formateur> formateur = formateurService.getFormateurByEmail(email);
+        if (formateur.isPresent()) {
+            model.addAttribute("sessions", sessionService.getSessionsByFormateur(formateur.get().getId()));
         }
         return "/formateur/formateur-session";
     }
+
     @GetMapping(value = {"/session/edit/{id}"})
     public String showUpdateSession(@PathVariable("id") long id, Model model) {
-        Session session = sessionRepository.findById(id)
+        Session session = sessionService.getSessiontById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid subject Id:" + id));
-        model.addAttribute("formateurs", formateurRepository.findAll());
+        model.addAttribute("formateurs", formateurService.getFormateursList());
         model.addAttribute("session", session);
         return "/formateur/formateur-edit-session";
     }
+
     @GetMapping(value = {"/session/etudiantList/{id}"})
     public String showSessionEtudians(@PathVariable("id") long id, Model model) {
-        Session session = sessionRepository.findById(id)
+        Session session = sessionService.getSessiontById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid class	 Id:" + id));
         model.addAttribute("etudiants", session.getEtudiants());
         model.addAttribute("id", session.getId());
         return "/formateur/formateur-etudiant-session";
     }
+
     @PostMapping(value = {"/session/add"})
     public String addSession(@Validated Session session, BindingResult result, Model model) {
         if (result.hasErrors()) {
             return "/formateur/formateur-edit-session";
         }
-        if (session.getStatus().isEmpty()){
+        if (session.getStatus().isEmpty()) {
             session.setStatus(Status.Programmé.toString());
 
         }
-        Session sessionTmp = sessionRepository.findById(session.getId())
+        Session sessionTmp = sessionService.getSessiontById(session.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid class	 Id:" + session.getId()));
         session.setEtudiants(sessionTmp.getEtudiants());
-        sessionRepository.save(session);
+        sessionService.saveSession(session);
         return "redirect:/formateur/session/list";
     }
 }

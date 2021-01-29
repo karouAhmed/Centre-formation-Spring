@@ -2,7 +2,12 @@ package com.exemple.gestionformations.controllers;
 
 import com.exemple.gestionformations.Status;
 import com.exemple.gestionformations.entities.*;
-import com.exemple.gestionformations.repository.*;
+import com.exemple.gestionformations.repository.ResponsableRepository;
+import com.exemple.gestionformations.repository.RoleRepository;
+import com.exemple.gestionformations.services.EtudiantService;
+import com.exemple.gestionformations.services.FormateurService;
+import com.exemple.gestionformations.services.ResponsableService;
+import com.exemple.gestionformations.services.SessionService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -21,47 +26,50 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/responsable")
 public class ResponsableController {
-    SessionRepository sessionRepository;
-    FormateurRepository formateurRepository;
+    EtudiantService etudiantService;
+    SessionService sessionService;
+    FormateurService formateurService;
     RoleRepository roleRepository;
-    EtudiantRepository etudiantRepository;
-    ResponsableRepository responsableRepository;
-    private BCryptPasswordEncoder passwordEncoder;
+
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @GetMapping(value = {"", "sessions/list"})
     public String getSessions(Model model) {
-        model.addAttribute("sessions", sessionRepository.findAll());
+        model.addAttribute("sessions", sessionService.getSessionsList());
         return "/responsable/responsable-session";
     }
+
     @GetMapping(value = {"sessions/signup"})
     public String showAddSession(Model model) {
         model.addAttribute("session", new Session());
-        model.addAttribute("formateurs", formateurRepository.findAll());
+        model.addAttribute("formateurs", formateurService.getFormateursList());
         return "/responsable/responsable-ajout-session";
     }
+
     @PostMapping(value = {"/sessions/add"})
     public String addSession(@Validated Session session, BindingResult result, Model model) {
         System.out.println(session.getFormateur().getUser());
         if (result.hasErrors()) {
-            System.out.println(session.getDateDebut());
             return "/responsable/responsable-ajout-session";
         }
 
-        if (session.getStatus().isEmpty()){
+        if (session.getStatus().isEmpty()) {
             session.setStatus(Status.Programmé.toString());
 
         }
-        Session sessionTmp = sessionRepository.findById(session.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid class	 Id:" + session.getId()));
-        session.setEtudiants(sessionTmp.getEtudiants());
-        sessionRepository.save(session);
+        Optional<Session> sessionTmp = sessionService.getSessiontById(session.getId());
+        if (sessionTmp.isPresent()) {
+            session.setEtudiants(sessionTmp.get().getEtudiants());
+        }
+        sessionService.saveSession(session);
         return "redirect:/responsable/sessions/list";
     }
+
     //**************************FORMATEUR*******************************
     @GetMapping(value = {"/formateurs/list"})
     public String getFormateursAdmin(Model model) {
 
-        model.addAttribute("formateurs", formateurRepository.findAll());
+        model.addAttribute("formateurs", formateurService.getFormateursList());
         return "/responsable/responsable-formateur";
     }
 
@@ -73,7 +81,7 @@ public class ResponsableController {
 
     @GetMapping(value = {"/formateurs/edit/{id}"})
     public String showUpdateFormateur(@PathVariable("id") long id, Model model) {
-        Formateur formateur = formateurRepository.findById(id)
+        Formateur formateur = formateurService.getFormateurtById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid subject Id:" + id));
         model.addAttribute("formateur", formateur);
         return "/responsable/responsable-edit-formateur";
@@ -89,33 +97,35 @@ public class ResponsableController {
         user.setRoles(Arrays.asList(role));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         formateur.setUser(user);
-        formateurRepository.save(formateur);
+        formateurService.saveSFormateur(formateur);
         return "redirect:/responsable/formateurs/list";
     }
+
     @GetMapping("/formateurs/delete/{id}")
     public String deleteFormateur(@PathVariable("id") long id, Model model) {
-        Optional<Formateur> formateur = formateurRepository.findById(id);
-        if (formateur.isPresent())
-        {
-            formateurRepository.delete(formateur.get());
-            model.addAttribute("formateurs", formateurRepository.findAll());
+        Optional<Formateur> formateur = formateurService.getFormateurtById(id);
+        if (formateur.isPresent()) {
+            formateurService.deleteFormateur(formateur.get());
+            model.addAttribute("formateurs", formateurService.getFormateursList());
             return "redirect:/admin/formateurs/list";
-        }
-        else return "redirect:/responsable/formateurs/list" ;
+        } else return "redirect:/responsable/formateurs/list";
 
     }
+
     //**************************ETUDIANT*******************************
     @GetMapping(value = {"/etudiants/list"})
     public String getEtudiantsAdmin(Model model) {
-        model.addAttribute("etudiants", etudiantRepository.findAll());
+        model.addAttribute("etudiants", etudiantService.getEtudiantsList());
 
         return "/responsable/responsable-etudiant";
     }
+
     @GetMapping(value = {"/etudiant/signup"})
     public String showSignupEtudiant(Model model) {
         model.addAttribute("etudiant", new Etudiant());
         return "/responsable/responsable-ajout-etudiant";
     }
+
     @PostMapping(value = {"/etudiant/add"})
     public String addEtudiant(@Validated Etudiant etudiant, BindingResult result) {
         if (result.hasErrors()) {
@@ -127,26 +137,26 @@ public class ResponsableController {
         user.setRoles(Arrays.asList(role));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         etudiant.setUser(user);
-        etudiantRepository.save(etudiant);
+        etudiantService.saveEtudiant(etudiant);
         return "redirect:/responsable/etudiants/list";
     }
+
     @GetMapping(value = {"/etudiant/edit/{id}"})
     public String showUpdateEtudiant(@PathVariable("id") long id, Model model) {
-        Etudiant etudiant = etudiantRepository.findById(id)
+        Etudiant etudiant = etudiantService.getEtudiantById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid subject Id:" + id));
         model.addAttribute("etudiant", etudiant);
         return "/responsable/responsable-edit-etudiant";
     }
+
     @GetMapping("/etudiant/delete/{id}")
     public String deleteEtudiant(@PathVariable("id") long id, Model model) {
-        Optional<Etudiant> etudiant = etudiantRepository.findById(id);
-        if (etudiant.isPresent())
-        {
-            etudiantRepository.delete(etudiant.get());
-            model.addAttribute("etudiants", etudiantRepository.findAll());
+        Optional<Etudiant> etudiant = etudiantService.getEtudiantById(id);
+        if (etudiant.isPresent()) {
+            etudiantService.deleteEtudiant(etudiant.get());
+            model.addAttribute("etudiants", etudiantService.getEtudiantsList());
             return "redirect:/responsable/etudiants/list";
-        }
-        else return "redirect:/responsable/etudiants/list" ;
+        } else return "redirect:/responsable/etudiants/list";
 
     }
 }
